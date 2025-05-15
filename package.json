@@ -1,0 +1,53 @@
+{
+  "name": "@agentic-profile/a2a-service",
+  "version": "0.5.0",
+  "description": "A2A (Agent-to-Agent) Express middleware for AI Agents using A2A and the Agentic Profile protocols",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepare": "tsup",
+    "cli": "npx tsx scripts/cli.ts",
+    "create-server-agent-cards-and-profiles": "npx tsx scripts/create-server-agent-cards-and-profiles.ts",
+    "create-demo-user": "npx tsx scripts/create-demo-user-agentic-profile.ts",
+    "dev": "npx tsx index.local.ts",
+    "build": "tsup",
+    "test": "jest"
+  },
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agentic-profile/agentic-profile-a2a-service.git"
+  },
+  "author": "Mike Prince",
+  "license": "Apache-2",
+  "bugs": {
+    "url": "https://github.com/agentic-profile/agentic-profile-a2a-service/issues"
+  },
+  "homepage": "https://github.com/agentic-profile/agentic-profile-a2a-service#readme",
+  "dependencies": {
+    "@agentic-profile/a2a-client": "^0.5.0",
+    "@agentic-profile/express-common": "^0.5.0",
+    "@genkit-ai/googleai": "^1.7.0",
+    "dotenv": "^16.4.7",
+    "genkit": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.14.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  }
+}
