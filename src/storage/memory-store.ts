@@ -1,43 +1,31 @@
 import {
     AgenticProfile,
-    DID,
-    UserID
+    DID
 } from "@agentic-profile/common/schema";
 import {
     ClientAgentSession,
+    ClientAgentSessionStore,
     ClientAgentSessionUpdates
 } from "@agentic-profile/auth";
+import { AgenticProfileStore } from "@agentic-profile/common";
 
 import {
-    Account,
-    CreateAccount,
     TaskAndHistory,
-    UnifiedStore
+    TaskStore
 } from "./models.js";
 
 
-let nextUserId = 1;
-const accounts = new Map<string,Account>();
-
-let nextSessionId = 1;
-const clientSessions = new Map<number,ClientAgentSession>();
-
-const profileCache = new Map<string,AgenticProfile>();
-
-
-function mapToObject<K extends PropertyKey, V>(map: Map<K, V>): Record<K, V> {
-    return Object.fromEntries(map) as Record<K, V>;
-}
-
-export class InMemoryStore implements UnifiedStore {
+export class InMemoryStore implements TaskStore, ClientAgentSessionStore, AgenticProfileStore {
+    private nextSessionId = 1;
+    private clientSessions = new Map<number,ClientAgentSession>();
+    private profileCache = new Map<string,AgenticProfile>();
 
     async dump() {
         return {
             database: 'memory',
-            accounts: mapToObject( accounts ),
-            clientSessions: mapToObject( clientSessions ),
-            profileCache: mapToObject( profileCache )
-        }
+            clientSessions: mapToObject( this.clientSessions ),
+            profileCache: mapToObject( this.profileCache )
+        } as any
     }
 
     private store: Map<string, TaskAndHistory> = new Map();
@@ -60,49 +48,26 @@ export class InMemoryStore implements UnifiedStore {
 
 
     //
-    // Accounts
-    //
-
-    async createAccount( { options, fields }: CreateAccount ) {
-        let uid;
-        if( options?.uid ) {
-            uid = +options.uid;
-            if( uid >= nextUserId )
-                nextUserId = uid + 1;
-        } else
-            uid = nextUserId++;
-
-        const { name, credit = 2 } = fields;
-        const account = { name, credit, uid, created: new Date() };
-        accounts.set( ''+uid, account );
-        return account;
-    }
-
-    async fetchAccountFields( uid: UserID, fields?: string ) {
-        return accounts.get( ''+uid );
-    }
-
-    //
     // Client sessions - agents are contacting me as a service.  I give them
     // challenges and then accept their authTokens
     //
 
     async createClientAgentSession( challenge: string ) {
-        const id = nextSessionId++;
-        clientSessions.set( id, { id, challenge, created: new Date() } as ClientAgentSession );
+        const id = this.nextSessionId++;
+        this.clientSessions.set( id, { id, challenge, created: new Date() } as ClientAgentSession );
         return id;
     }
 
     async fetchClientAgentSession( id:number ) {
-        return clientSessions.get( id );  
+        return this.clientSessions.get( id );  
     }
 
     async updateClientAgentSession( id:number, updates:ClientAgentSessionUpdates ) {
-        const session = clientSessions.get( id );
+        const session = this.clientSessions.get( id );
         if( !session )
             throw new Error("Failed to find client session by id: " + id );
         else
-            clientSessions.set( id, { ...session, ...updates } );
+            this.clientSessions.set( id, { ...session, ...updates } );
     }
 
 
@@ -111,10 +76,14 @@ export class InMemoryStore implements UnifiedStore {
     //
 
     async saveAgenticProfile( profile: AgenticProfile ) { 
-        profileCache.set( profile.id, profile )
+        this.profileCache.set( profile.id, profile )
     }
 
     async loadAgenticProfile( did: DID ) {
-        return profileCache.get( did )
+        return this.profileCache.get( did )
     }
+}
+
+function mapToObject<K extends PropertyKey, V>(map: Map<K, V>): Record<K, V> {
+    return Object.fromEntries(map) as Record<K, V>;
 }

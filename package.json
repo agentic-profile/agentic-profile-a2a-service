@@ -1,15 +1,11 @@
 {
   "name": "@agentic-profile/a2a-service",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A2A (Agent-to-Agent) Express middleware for AI Agents using A2A and the Agentic Profile protocols",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "tsup",
-    "cli": "npx tsx scripts/cli.ts",
-    "create-server-agent-cards-and-profiles": "npx tsx scripts/create-server-agent-cards-and-profiles.ts",
-    "create-demo-user": "npx tsx scripts/create-demo-user-agentic-profile.ts",
-    "dev": "npx tsx index.local.ts",
     "build": "tsup",
     "test": "jest"
   },
@@ -36,18 +32,16 @@
   "homepage": "https://github.com/agentic-profile/agentic-profile-a2a-service#readme",
   "dependencies": {
     "@agentic-profile/a2a-client": "^0.5.0",
-    "@agentic-profile/express-common": "^0.5.0",
-    "@genkit-ai/googleai": "^1.7.0",
-    "dotenv": "^16.4.7",
-    "genkit": "^1.7.0"
+    "@agentic-profile/auth": "^0.5.0",
+    "@agentic-profile/common": "^0.5.0",
+    "express": "^5.1.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
-    "@types/morgan": "^1.9.9",
+    "@types/express": "^5.0.2",
     "@types/node": "^22.14.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3"
-  }
+  },
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }

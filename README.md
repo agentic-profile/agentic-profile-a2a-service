@@ -1,5 +1,7 @@
 # Typescript A2A service library with support for Agentic Profiles (globally unique agent ids and universal authentication)
 
+**NOTE: For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)**
+
 This project provides an A2A TypeScript service implementation that is easy to integrate into an existing Express server.  The A2A service has been extended to support the Agentic Profile.
 
 - [Quick overview of this project](#quick-overview-of-this-project)
@@ -19,148 +21,13 @@ This project provides:
 
 The project sourcecode has the following:
 
-- agents/
-    - coder/ - An A2A programming assistant/agent
-    - eliza/ - The classic Eliza therapist
 - service/ - Express A2A endpoint handler
 - storage/ - In Memory implementation of the storage interface
-- routes - Provides useful endpoints like /status and /storage for debugging
-
-The root directory contains:
-
-- index.local.ts - A demonstration of an A2A server with globally unique user and business scoped agent ids, and universal authentication
 
 
 ## Quickstart
 
-The easiest way to run this demo is locally.
-
-1. Requirements - Make sure these are installed:
-
-    - [git](https://github.com/git-guides/install-git)
-    - [node](https://nodejs.org/en/download)
-
-2. From the shell, clone this repository and switch to the project directory.
-
-    ```bash
-    git clone git@github.com:agentic-profile/agentic-profile-a2a-service.git
-    cd agentic-profile-a2a-service
-    ```
-
-3. Download dependencies
-
-    ```bash
-    npm install
-    ```
-
-4. Create demo data.  Agent cards and agentic profiles for the server agents, and a demo user profile to authenticate with.
-
-    ```bash
-    npm run create-server-agent-cards-and-profiles
-    npm run create-demo-user
-    ```
-
-4. Run the server
-
-    ```bash
-    npm run dev
-    ```
-
-### Finish Configuring the Node Server
-
-1. Copy the file example.env to .env
-
-    ```bash
-    cp example.env .env
-    ```
-
-2. Edit the .env file.
-
-    To enable admin features.  Uncomment ADMIN_TOKEN and choose a password, for example:
-
-    ```
-    ADMIN_TOKEN=<yoursecret>
-    ```
-
-    Add your Gemini API key (required to use the coder A2A agent).  [Get a Gemini API key](https://ai.google.dev/gemini-api/docs/api-key)
-
-    ```
-    GEMINI_API_KEY=<your Gemini API key>
-    ```
-
-3. Restart the server
-
-    ```bash
-    npm run dev
-    ```
-
-4. Make sure an admin feature works.  From the command line try:
-
-    ```bash
-    curl -H "Authorization: Bearer yoursecret" http://localhost:4004/storage
-    ```
-
-    Or from the browser:
-
-    http://localhost:4004/storage?auth=yoursecret
-
-
-## Test the different A2A agents
-
-1. Make sure the server is started:
-
-    ```bash
-    npm run dev
-    ```
-
-4. For each of the following examples, open a new terminal window. For examples with authentication skip to step #5
-
-    Start the A2A client using the agent card, but still no authentication
-
-    ```bash
-    npm run cli -- -p http://localhost:4004/agents/coder/
-    ```
-
-    Start the A2A client using the Agentic Profile, but still no authentication
-
-    ```bash
-    npm run cli -- -p did:web:localhost%3A4004:agents:coder#a2a-coder
-    ```
-
-5. In order to use authentication, you must create an agentic profile and keys to authenticate with.
-
-    ```bash
-    npm run create-demo-profile
-    ```
-
-    The above script creates a new agentic profile on the test.agenticprofile.ai server, and also stores
-    a copy in your filesystem at ~/.agentic/iam/a2a-service-demo-user
-
-6. Examples using Agentic Profile authentication
-
-    Start the A2A client with an Agentic Profile and authentication
-
-    ```bash
-    npm run cli -- -p did:web:localhost%3A4004:users:2:coder#a2a-coder -u "#agent-chat"
-    ```
-
-    Start the A2A client with the well-known Agentic Profile and authentication
-
-    ```bash
-    npm run cli -- -i "a2a-service-demo-user" -p did:web:localhost%3A4004#a2a-coder
-    ```
-
-    Start the A2A client with the well-known agent and authentication
-
-    ```bash
-    npm run cli -- -p http://localhost:4004/
-    ```
-
-    Start the A2A client with the well-known agentic profile and authentication
-
-    ```bash
-    npm run cli -- -p did:web:localhost%3A4004#a2a-coder
-    ```
+**NOTE: For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)**
 
 
 ## Basic Usage

@@ -1,5 +1,3 @@
-export * from "./routes.js";
-
 export * from "./service/error.js";
 export { TaskHandler, TaskYieldUpdate } from "./service/handler.js";
 export * from "./service/service.js";
