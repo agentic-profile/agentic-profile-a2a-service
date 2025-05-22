@@ -1,25 +1,19 @@
 # Typescript A2A service library with support for Agentic Profiles (globally unique agent ids and universal authentication)
 
-**NOTE: For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)**
+> For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)
 
-This project provides an A2A TypeScript service implementation that is easy to integrate into an existing Express server.  The A2A service has been extended to support the Agentic Profile.
+This project provides a TypeScript A2A service that is easy to integrate into an existing Express server.  The A2A service has been extended to support the Agentic Profile.
 
-- [Quick overview of this project](#quick-overview-of-this-project)
+- [Project overview](#project-overview)
 - [Quickstart](#quickstart)
-- [Test the different A2A agents](#test-the-different-a2a-agents)
-- [Basic Usage](#basic-usage)
 - [Enhancing A2A with the Agentic Profile](#enhancing-a2a-with-the-agentic-profile)
 
 
-## Quick overview of this project
+## Project overview
 
-This project provides:
+This project provides an NPM package to easily add A2A support to existing Express servers.
 
-- An NPM package to easily add A2A support to existing Express servers
-- A Node service using Express to demonstrate two A2A agents
-- Scripts to create agent cards and Agentic Profiles
-
-The project sourcecode has the following:
+The sourcecode has the following:
 
 - service/ - Express A2A endpoint handler
 - storage/ - In Memory implementation of the storage interface
@@ -27,60 +21,8 @@ The project sourcecode has the following:
 
 ## Quickstart
 
-**NOTE: For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)**
+For a demonstration of this library and examples of its implemention, please download the [SDK](https://github.com/agentic-profile/agentic-profile-a2a)
 
-
-## Basic Usage
-
-```typescript
-import {
-  A2AService,
-  InMemoryTaskStore,
-  TaskContext,
-  TaskYieldUpdate,
-} from "./index"; // Assuming imports from the server package
-
-// 1. Define your agent's logic as a TaskHandler
-async function* myAgentLogic(
-  context: TaskContext
-): AsyncGenerator<TaskYieldUpdate> {
-  console.log(`Handling task: ${context.task.id}`);
-  yield {
-    state: "working",
-    message: { role: "agent", parts: [{ text: "Processing..." }] },
-  };
-
-  // Simulate work...
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  if (context.isCancelled()) {
-    console.log("Task cancelled!");
-    yield { state: "canceled" };
-    return;
-  }
-
-  // Yield an artifact
-  yield {
-    name: "result.txt",
-    mimeType: "text/plain",
-    parts: [{ text: `Task ${context.task.id} completed.` }],
-  };
-
-  // Yield final status
-  yield {
-    state: "completed",
-    message: { role: "agent", parts: [{ text: "Done!" }] },
-  };
-}
-
-// 2. Create and start the server
-const store = new InMemoryTaskStore(); // Or new FileStore()
-const server = new A2AServer(myAgentLogic, { taskStore: store });
-
-server.start(); // Starts listening on default port 41241
-
-console.log("A2A Server started.");
-```
 
 
 ## Enhancing A2A with the Agentic Profile

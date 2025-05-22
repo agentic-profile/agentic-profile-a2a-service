@@ -9,14 +9,14 @@ importers:
   .:
     dependencies:
       '@agentic-profile/a2a-client':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.5.1
+        version: 0.5.1
       '@agentic-profile/auth':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.5.1
+        version: 0.5.1
       '@agentic-profile/common':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.5.1
+        version: 0.5.1
       express:
         specifier: ^5.1.0
         version: 5.1.0
@@ -39,14 +39,14 @@ importers:
 
 packages:
 
-  '@agentic-profile/a2a-client@0.5.0':
-    resolution: {integrity: sha512-FT61nJrrzUVIAYl1e37HMG3v87/LYiNE3NYarib8yqtyz75sOpMmiFCkWlwty+3kBfnI4llpEgMh1KqaeJm+Hw==}
+  '@agentic-profile/a2a-client@0.5.1':
+    resolution: {integrity: sha512-k+1QtDLqfq5NoCvoOEg6+ztoEEaD309i3jcwgGqbxOK/tQZuZLNSfg9zoWVwsvNpS9SWFMEeZcKcETMwHoiqgw==}
 
-  '@agentic-profile/auth@0.5.0':
-    resolution: {integrity: sha512-x4qOfAf448nhkCIedq7oJTlROOjKjxm+7m1jb3Wk5cMNypQRXthQw9ESdr7oub354ML+gfECajtzfsY31rVBUg==}
+  '@agentic-profile/auth@0.5.1':
+    resolution: {integrity: sha512-mGrz0CVevETVRkNFu7OpiFwS0tfChtIhFjtNDCuLfzT5pxeRvF8jRJFc6nn1HFxs0XBX5uoZyxdTSRiyssG+ug==}
 
-  '@agentic-profile/common@0.5.0':
-    resolution: {integrity: sha512-PQfkx7ckorgwPbvMIp8ULqX+UeWBUTT/BvPtHk6SBAwbepYdsEYgV8t9hEMi5NAbbXozTVf9tcsk3eSgAUn4VA==}
+  '@agentic-profile/common@0.5.1':
+    resolution: {integrity: sha512-9/AM7cN4Xx3XvLyR5+vir17PYhQ89q/E09tkC7Df94eUpSqlA+cze7V6ikJZcxBcEaG1v1i7UhSUg75lwEnwMg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -1021,16 +1021,19 @@ packages:
 
 snapshots:
 
-  '@agentic-profile/a2a-client@0.5.0':
+  '@agentic-profile/a2a-client@0.5.1':
     dependencies:
-      '@agentic-profile/auth': 0.5.0
+      '@agentic-profile/auth': 0.5.1
+      '@agentic-profile/common': 0.5.1
 
-  '@agentic-profile/auth@0.5.0':
+  '@agentic-profile/auth@0.5.1':
     dependencies:
-      '@agentic-profile/common': 0.5.0
+      '@agentic-profile/common': 0.5.1
       '@noble/ed25519': 2.2.3
+      did-resolver: 4.1.0
+      loglevel: 1.9.2
 
-  '@agentic-profile/common@0.5.0':
+  '@agentic-profile/common@0.5.1':
     dependencies:
       did-resolver: 4.1.0
       loglevel: 1.9.2
