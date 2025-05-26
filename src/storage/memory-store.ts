@@ -19,19 +19,28 @@ export class InMemoryStore implements TaskStore, ClientAgentSessionStore, Agenti
     private nextSessionId = 1;
     private clientSessions = new Map<number,ClientAgentSession>();
     private profileCache = new Map<string,AgenticProfile>();
+    private taskStore = new Map<string,TaskAndHistory>();
+
+    constructor() {
+        console.log( "InMemoryStore constructor" );
+    }
 
     async dump() {
         return {
             database: 'memory',
             clientSessions: mapToObject( this.clientSessions ),
-            profileCache: mapToObject( this.profileCache )
-        } as any
+            profileCache: mapToObject( this.profileCache ),
+            taskStore: mapToObject( this.taskStore )
+        } as any;
     }
 
-    private store: Map<string, TaskAndHistory> = new Map();
+    private createTaskKey( taskId: string, sessionId: string | null ): string {
+        return `${sessionId ?? ""}:${taskId}`;
+    }
 
-    async loadTask(taskId: string): Promise<TaskAndHistory | null> {
-        const entry = this.store.get(taskId);
+    async loadTask(taskId: string, sessionId: string | null): Promise<TaskAndHistory | null> {
+        const key = this.createTaskKey(taskId, sessionId);
+        const entry = this.taskStore.get(key);
         // Return copies to prevent external mutation
         return entry
             ? { task: { ...entry.task }, history: [...entry.history] }
@@ -40,8 +49,10 @@ export class InMemoryStore implements TaskStore, ClientAgentSessionStore, Agenti
 
     async saveTask(data: TaskAndHistory): Promise<void> {
         // Store copies to prevent internal mutation if caller reuses objects
-        this.store.set(data.task.id, {
-            task: { ...data.task },
+        const { task } = data;
+        const key = this.createTaskKey(task.id, task.sessionId ?? null)
+        this.taskStore.set(key, {
+            task: { ...task },
             history: [...data.history],
         });
     }

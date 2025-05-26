@@ -91,11 +91,10 @@ export class A2AService {
     endpoint(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction) => {
             const requestBody = req.body;
-            let taskId: string | undefined; // For error context
 
             try {
                 // 0. Authenticate client agent
-                let agentSession: ClientAgentSession | null;
+                let agentSession: ClientAgentSession | null = null;
                 if( this.agentSessionResolver ) {
                     agentSession = await this.agentSessionResolver( req, res );
                     if( !agentSession )
@@ -106,31 +105,35 @@ export class A2AService {
                 if (!this.isValidJsonRpcRequest(requestBody)) {
                     throw A2AError.invalidRequest("Invalid JSON-RPC request structure.");
                 }
-                // Attempt to get task ID early for error context. Cast params to any to access id.
-                // Proper validation happens within specific handlers.
-                taskId = (requestBody.params as any)?.id;
 
                 // 2. Route based on method
                 switch (requestBody.method) {
                     case "tasks/send":
                         await this.handleTaskSend(
                             requestBody as SendTaskRequest,
-                            res
+                            res,
+                            agentSession
                         );
                         break;
                     case "tasks/sendSubscribe":
                         await this.handleTaskSendSubscribe(
                             requestBody as SendTaskStreamingRequest,
-                            res
+                            res,
+                            agentSession
                         );
                         break;
                     case "tasks/get":
-                        await this.handleTaskGet(requestBody as GetTaskRequest, res);
+                        await this.handleTaskGet(
+                            requestBody as GetTaskRequest,
+                            res,
+                            agentSession
+                        );
                         break;
                     case "tasks/cancel":
                         await this.handleTaskCancel(
                             requestBody as CancelTaskRequest,
-                            res
+                            res,
+                            agentSession
                         );
                         break;
                     // Add other methods like tasks/pushNotification/*, tasks/resubscribe later if needed
@@ -138,6 +141,8 @@ export class A2AService {
                         throw A2AError.methodNotFound(requestBody.method);
                 }
             } catch (error) {
+                const taskId = (requestBody.params as any)?.id;
+
                 // Forward errors to the Express error handler
                 if (error instanceof A2AError && taskId && !error.taskId) {
                     error.taskId = taskId; // Add task ID context if missing
@@ -147,28 +152,46 @@ export class A2AService {
         };
     }
 
-    // --- Request Handlers ---
-
-    private async handleTaskSend(
-        req: SendTaskRequest,
-        res: Response
-    ): Promise<void> {
-        this.validateTaskSendParams(req.params);
-        const { id: taskId, message, sessionId, metadata } = req.params;
-
-        // Load or create task AND history
-        let currentData = await this.loadOrCreateTaskAndHistory(
+    private async loadOrCreateTaskAndContext( params: TaskSendParams, agentSession: ClientAgentSession | null ) {
+        this.validateTaskSendParams(params);
+        const { id: taskId, message, metadata } = params;
+        const sessionId = this.resolveSessionId( agentSession, params.sessionId );
+        const currentData = await this.loadOrCreateTaskAndHistory(
             taskId,
             message,
             sessionId,
             metadata
         );
+
         // Use the new TaskContext definition, passing history
         const context = this.createTaskContext(
             currentData.task,
             message,
-            currentData.history
+            currentData.history,
+            agentSession
         );
+
+        return { context, currentData, taskId };
+    }
+
+    private resolveSessionId( agentSession: ClientAgentSession | null, sessionId?: string | null ): string | null {
+        if( agentSession )
+            return agentSession.agentDid!;
+        else if( sessionId?.startsWith( "did:" ) )
+            throw new Error( `Task based session ID cannot be a DID, found ${sessionId}` );
+        else
+            return sessionId ?? null;
+    }
+
+    // --- Request Handlers ---
+
+    private async handleTaskSend(
+        req: SendTaskRequest,
+        res: Response,
+        agentSession: ClientAgentSession | null
+    ): Promise<void> {
+        // Load or create task AND history
+        let { context, currentData, taskId } = await this.loadOrCreateTaskAndContext( req.params, agentSession );
         const generator = this.taskHandler(context);
 
         // Process generator yields
@@ -221,24 +244,10 @@ export class A2AService {
 
     private async handleTaskSendSubscribe(
         req: SendTaskStreamingRequest,
-        res: Response
+        res: Response,
+        agentSession: ClientAgentSession | null
     ): Promise<void> {
-        this.validateTaskSendParams(req.params);
-        const { id: taskId, message, sessionId, metadata } = req.params;
-
-        // Load or create task AND history
-        let currentData = await this.loadOrCreateTaskAndHistory(
-            taskId,
-            message,
-            sessionId,
-            metadata
-        );
-        // Use the new TaskContext definition, passing history
-        const context = this.createTaskContext(
-            currentData.task,
-            message,
-            currentData.history
-        );
+        let { context, currentData, taskId } = await this.loadOrCreateTaskAndContext( req.params, agentSession );
         const generator = this.taskHandler(context);
 
         // --- Setup SSE ---
@@ -402,13 +411,18 @@ export class A2AService {
 
     private async handleTaskGet(
         req: GetTaskRequest,
-        res: Response
+        res: Response,
+        agentSession: ClientAgentSession | null
     ): Promise<void> {
         const { id: taskId } = req.params;
-        if (!taskId) throw A2AError.invalidParams("Missing task ID.");
+        if (!taskId)
+            throw A2AError.invalidParams("Missing task ID.");
+        const sessionId = agentSession?.agentDid;
+        if (!sessionId)
+            throw A2AError.invalidParams("Missing session ID.");
 
         // Load both task and history
-        const data = await this.taskStore.loadTask(taskId);
+        const data = await this.taskStore.loadTask(taskId,sessionId);
         if (!data) {
             throw A2AError.taskNotFound(taskId);
         }
@@ -418,13 +432,18 @@ export class A2AService {
 
     private async handleTaskCancel(
         req: CancelTaskRequest,
-        res: Response
+        res: Response,
+        agentSession: ClientAgentSession | null
     ): Promise<void> {
         const { id: taskId } = req.params;
-        if (!taskId) throw A2AError.invalidParams("Missing task ID.");
+        if (!taskId)
+            throw A2AError.invalidParams("Missing task ID.");
+        const sessionId = agentSession?.agentDid;
+        if (!sessionId)
+            throw A2AError.invalidParams("Missing session ID.");
 
         // Load task and history
-        let data = await this.taskStore.loadTask(taskId);
+        let data = await this.taskStore.loadTask(taskId,sessionId);
         if (!data) {
             throw A2AError.taskNotFound(taskId);
         }
@@ -547,7 +566,7 @@ export class A2AService {
         sessionId?: string | null, // Allow null
         metadata?: Record<string, unknown> | null // Allow null
     ): Promise<TaskAndHistory> {
-        let data = await this.taskStore.loadTask(taskId);
+        let data = await this.taskStore.loadTask(taskId,sessionId ?? null);
         let needsSave = false;
 
         if (!data) {
@@ -627,12 +646,14 @@ export class A2AService {
     private createTaskContext(
         task: Task,
         userMessage: Message,
-        history: Message[] // Add history parameter
+        history: Message[],
+        agentSession: ClientAgentSession | null
     ): TaskContext {
         return {
             task: { ...task }, // Pass a copy
             userMessage: userMessage,
             history: [...history], // Pass a copy of the history
+            agentSession: agentSession ?? undefined,
             isCancelled: () => this.activeCancellations.has(task.id),
             // taskStore is removed
         };
