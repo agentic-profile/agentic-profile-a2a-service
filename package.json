@@ -1,6 +1,6 @@
 {
   "name": "@agentic-profile/a2a-service",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "description": "A2A (Agent-to-Agent) Express middleware for AI Agents using A2A and the Agentic Profile protocols",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/agentic-profile/agentic-profile-a2a-service#readme",
   "dependencies": {
-    "@agentic-profile/a2a-client": "^0.5.4",
-    "@agentic-profile/auth": "^0.5.4",
-    "@agentic-profile/common": "^0.5.4",
+    "@agentic-profile/a2a-client": "^0.6.0",
+    "@agentic-profile/auth": "^0.6.0",
+    "@agentic-profile/common": "^0.6.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
