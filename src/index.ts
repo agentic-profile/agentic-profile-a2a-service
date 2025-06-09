@@ -1,5 +1,5 @@
 export * from "./service/error.js";
-export { TaskHandler, TaskYieldUpdate } from "./service/handler.js";
+export type { TaskHandler, TaskYieldUpdate } from "./service/handler.js";
 export * from "./service/service.js";
 
 export * from "./storage/memory-store.js";
